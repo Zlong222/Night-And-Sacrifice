@@ -5,17 +5,19 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.U2D;
-
+using UnityEngine.UI;
 public class PlayerSpriteMgr : MonoBehaviour 
 {
-    private SpriteRenderer armorBody,armorLeft,armorRight,back,body
-        ,bodyArmL,bodyArmR,bodyFootL,bodyFootR,bodyHead,clothBody,clothLeft
-        ,clothRight,faceHair,footLeft,footRight,hair,helmet;
-    private JObject jsonData_customPlayer;
-    
+    private SpriteRenderer armorBody,armorLeft,armorRight,back,body,bodyArmL,bodyArmR,bodyFootL,bodyFootR,bodyHead,clothBody,clothLeft,clothRight,faceHair,footLeft,footRight,hair,helmet;
+    private CustomCharactor jsonData_customPlayer;
+
+    public List<string> armorList, backList, bodyList, clothList, footList, hairList, helmetList,faceHairList;
+    public Button btHair,btHelmet,btBack,btFaceHair,btArmor,btBody,btCloth,btFoot;
+    public int iHair=0,iHelmet=0,iBack=0,iFaceHair=0,iArmor=0,iBody=0,iCloth=0,iFoot=0;
     private void Awake()
     {
         GetSpriteRender();
@@ -58,13 +60,13 @@ public class PlayerSpriteMgr : MonoBehaviour
 
         GlobalGameData.SavePlayerCustomCharactorDataToJson(customCharactor); ;
     }
-    private void ShowSpriteFromJsonFile(JObject jsData)
+    private void ShowSpriteFromJsonFile(CustomCharactor jsData)
     {
         //º”‘ÿÕººØ
-        Sprite[] bodySprites = Resources.LoadAll<Sprite>("Charactor/Body/" + jsData[4]);
-        Sprite[] armorSprites = Resources.LoadAll<Sprite>("Charactor/Armor/" + jsData[0]);
-        Sprite[] clothSprites = Resources.LoadAll<Sprite>("Charactor/Cloth/" + jsData[10]);
-        Sprite[] footSprites = Resources.LoadAll<Sprite>("Charactor/Foot/" + jsData[14]);
+        Sprite[] bodySprites = Resources.LoadAll<Sprite>("Charactor/Body/" + jsData.bodyArmLSpriteName);
+        Sprite[] armorSprites = Resources.LoadAll<Sprite>("Charactor/Armor/" + jsData.armorBodySpriteName);
+        Sprite[] clothSprites = Resources.LoadAll<Sprite>("Charactor/Cloth/" + jsData.clothLeftSpriteName);
+        Sprite[] footSprites = Resources.LoadAll<Sprite>("Charactor/Foot/" + jsData.footLeftSpriteName);
         //bodyAtlas
         bodyArmL.sprite = Array.Find(bodySprites, s => s.name == "Arm_L");
         bodyArmR.sprite = Array.Find(bodySprites, s => s.name == "Arm_R");
@@ -87,10 +89,10 @@ public class PlayerSpriteMgr : MonoBehaviour
         footLeft.sprite = Array.Find(footSprites, s => s.name == "Left");
 
         //misc
-        back.sprite = Resources.Load<Sprite>("Charactor/Back/" + jsData[3]);
-        faceHair.sprite = Resources.Load<Sprite>("Charactor/FaceHair/" + jsData[13]);
-        hair.sprite = Resources.Load<Sprite>("Charactor/Hair/" + jsData[16]);
-        helmet.sprite = Resources.Load<Sprite>("Charactor/Helmet/" + jsData[17]);
+        back.sprite = Resources.Load<Sprite>("Charactor/Back/" + jsData.backSpriteName);
+        faceHair.sprite = Resources.Load<Sprite>("Charactor/FaceHair/" + jsData.faceHairSpriteName);
+        hair.sprite = Resources.Load<Sprite>("Charactor/Hair/" + jsData.hairSpriteName);
+        helmet.sprite = Resources.Load<Sprite>("Charactor/Helmet/" + jsData.helmetSpriteName);
         
     }
     private void ShowDefaultSprite()
@@ -110,9 +112,9 @@ public class PlayerSpriteMgr : MonoBehaviour
         body.sprite = Array.Find(bodySprites, s => s.name == "Body");
 
         //bodyArmorAtlas
-        armorBody.sprite = Array.Find(armorSprites, s => s.name == "Right");
+        armorBody.sprite = Array.Find(armorSprites, s => s.name == "Body");
         armorLeft.sprite = Array.Find(armorSprites, s => s.name == "Left");
-        armorRight.sprite = Array.Find(armorSprites, s => s.name == "Body");
+        armorRight.sprite = Array.Find(armorSprites, s => s.name == "Right");
         //clothAtlas
         clothBody.sprite = Array.Find(clothSprites, s => s.name == "Body");
         clothLeft.sprite = Array.Find(clothSprites, s => s.name == "Left");
@@ -126,7 +128,7 @@ public class PlayerSpriteMgr : MonoBehaviour
         back.sprite = Resources.Load<Sprite>("Charactor/Back/"+"Back_1" );
         faceHair.sprite = Resources.Load<Sprite>("Charactor/FaceHair/" +"FaceHair_1");
         hair.sprite = Resources.Load<Sprite>("Charactor/Hair/"+"Hair_1");
-        helmet.sprite = Resources.Load<Sprite>("Charactor/Helmet/"+"Helmet_1");
+        helmet.sprite = Resources.Load<Sprite>("Charactor/Helmet/"+"Helmet_11");
     }
     public void GetSpriteRender()
     {
@@ -182,6 +184,81 @@ public class PlayerSpriteMgr : MonoBehaviour
 
     }
     
+    public int Change(List<string> list,int index)
+    {
+        if (index == list.Count - 1)
+        {
+            index = 0;
+        }
+        else
+        {
+            index++;
+
+        }
+        return index;
+
+    }
+    private void Start()
+    {
+        btHair.onClick.AddListener(() =>
+        {
+            iHair = Change(hairList, iHair);
+            hair.sprite = Resources.Load<Sprite>("Charactor/Hair/" + hairList[iHair]);
+        });
+        btHelmet.onClick.AddListener(() =>
+        {
+            iHelmet = Change(helmetList, iHelmet);
+            helmet.sprite = Resources.Load<Sprite>("Charactor/Helmet/" + helmetList[iHelmet]);
+        });
+        btFaceHair.onClick.AddListener(() =>
+        {
+            iFaceHair = Change(faceHairList, iFaceHair);
+            faceHair.sprite = Resources.Load<Sprite>("Charactor/FaceHair/" + faceHairList[iFaceHair]);
+        });
+        btBack.onClick.AddListener(() =>
+        {
+            iBack = Change(backList, iBack);
+            back.sprite = Resources.Load<Sprite>("Charactor/Back/" + backList[iBack]);
+        });
+        btArmor.onClick.AddListener(() =>
+        {
+            iArmor = Change(armorList, iArmor);
+            Sprite[] armorSprites = Resources.LoadAll<Sprite>("Charactor/Armor/" + armorList[iArmor]);
+            armorBody.sprite = Array.Find(armorSprites, s => s.name == "Body");
+            armorLeft.sprite = Array.Find(armorSprites, s => s.name == "Left");
+            armorRight.sprite = Array.Find(armorSprites, s => s.name == "Right");
+        });
+        btBody.onClick.AddListener(() =>
+        {
+            iBody = Change(bodyList, iBody);
+            Sprite[] bodySprites = Resources.LoadAll<Sprite>("Charactor/Body/" + bodyList[iBody]);
+            bodyArmL.sprite = Array.Find(bodySprites, s => s.name == "Arm_L");
+            bodyArmR.sprite = Array.Find(bodySprites, s => s.name == "Arm_R");
+            bodyFootL.sprite = Array.Find(bodySprites, s => s.name == "Foot_L");
+            bodyFootR.sprite = Array.Find(bodySprites, s => s.name == "Foot_R");
+            bodyHead.sprite = Array.Find(bodySprites, s => s.name == "Head");
+            body.sprite = Array.Find(bodySprites, s => s.name == "Body");
+        });
+        btCloth.onClick.AddListener(() =>
+        {
+            iCloth = Change(clothList, iCloth);
+            Sprite[] clothSprites = Resources.LoadAll<Sprite>("Charactor/Cloth/" + clothList[iCloth]);
+            clothBody.sprite = Array.Find(clothSprites, s => s.name == "Body");
+            clothLeft.sprite = Array.Find(clothSprites, s => s.name == "Left");
+            clothRight.sprite = Array.Find(clothSprites, s => s.name == "Right");
+        });
+        btFoot.onClick.AddListener(() =>
+        {
+            iFoot = Change(footList, iFoot);
+            Sprite[] footSprites = Resources.LoadAll<Sprite>("Charactor/Foot/" + footList[iFoot]);
+            footRight.sprite = Array.Find(footSprites, s => s.name == "Right");
+            footLeft.sprite = Array.Find(footSprites, s => s.name == "Left");
+        });
+    }
+    private void Update()
+    {
+        
+    }
 
 }
 

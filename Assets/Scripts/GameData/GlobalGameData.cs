@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+
 using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
@@ -26,27 +24,25 @@ public class CustomCharactor
     public string helmetSpriteName { get; set; }
 
 }   
-public class GlobalGameData : MonoBehaviour
+public class GlobalGameData
 {
     public static void SavePlayerCustomCharactorDataToJson(CustomCharactor customCharactor)
     {
         FileInfo file = new FileInfo(Application.dataPath + @"/SaveData/charactorData/customCharactor.json");
         StreamWriter sw = file.CreateText();
-        string json = JsonConvert.ToString(customCharactor);
+        string json = JsonConvert.SerializeObject(customCharactor);
         sw.Write(json);
         sw.Close();
         sw.Dispose();
     }
-    public static JObject LoadPlayerCustomCharactorDataFromJson(string jsonFileNamePath)
+    public static CustomCharactor LoadPlayerCustomCharactorDataFromJson(string jsonFileNamePath)
     {
         FileInfo file = new FileInfo(Application.dataPath + jsonFileNamePath);
         if (file.Exists)
         {
             StreamReader sr = file.OpenText();
             string strData = sr.ReadToEnd();
-            JObject jsdata3 = JObject.Parse(strData);
-            JsonConvert.ToString(jsdata3);
-            return jsdata3;
+            return JsonConvert.DeserializeObject<CustomCharactor>(strData);
         }
         else
         {
